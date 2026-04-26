@@ -1,0 +1,17 @@
+node_modules
+dist
+.DS_Store
+*.local
+.vite
+
+# Raw asset working folder (zip downloads, panorama parts) — not needed for build
+/models/
+
+# Heavy unused models
+src/assets/models/wheel.glb
+src/assets/models/wheel2.glb
+
+# Word docs / debug folders / ad-hoc
+debug/
+*.docx
+img.png

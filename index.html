@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Tbilisi Runner</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="stage">
+    <div class="bg-tile" id="bgA"></div>
+    <div class="bg-tile" id="bgB"></div>
+  </div>
+  <div id="score">Jumps: 0 / 5</div>
+  <div id="hint">Tap to Jump · Tap twice for Double-Jump</div>
+  <div id="loader">Loading…</div>
+
+  <div id="rotatePrompt">
+    <div class="rotate-icon">📱↻</div>
+    <h2>Rotate your device</h2>
+    <p>This game is designed for landscape mode</p>
+  </div>
+
+  <div id="startOverlay" class="overlay">
+    <button class="cta-pill" id="playBtn">
+      <span class="cta-title">Play <span class="cta-emoji">▶</span></span>
+      <span class="cta-sub">Tap to start</span>
+    </button>
+  </div>
+
+  <div id="lostOverlay" class="overlay">
+    <img id="lostImg" alt="Game Over" />
+    <button class="cta-pill" id="retryBtn">
+      <span class="cta-title">So close <span class="cta-emoji">👀</span></span>
+      <span class="cta-sub">Good luck next time!</span>
+    </button>
+  </div>
+
+  <div id="winOverlay" class="overlay">
+    <img id="winImg" alt="Victory" />
+    <button class="cta-pill" id="playAgainBtn">
+      <span class="cta-title">Nice run <span class="cta-emoji">⚡</span></span>
+      <span class="cta-sub">10% discount on your next ride!</span>
+    </button>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
