@@ -304,7 +304,7 @@ const game = {
   velocityY: 0,
   onGround: true,
   obstacles: [] as Obstacle[],
-  spawnTimer: 1.2,
+  spawnTimer: 0.3,    // first obstacle right after the speed-up intro
   startTime: 0,
   lastSpeedTier: 0,
   taxi: null as THREE.Object3D | null,
@@ -323,6 +323,7 @@ const game = {
   // the GPU once at game start, so spawning becomes a position swap.
   obstaclePool: [] as Obstacle[],
   nextPoolIndex: 0,
+  taxiPrebuilt: null as THREE.Object3D | null,
 };
 
 // Intro phasing: brief stand, then ramp speed 0 → baseSpeed.
@@ -344,21 +345,30 @@ function buildObstaclePool(): void {
     const src = isBush ? MODELS.bush : MODELS.tree;
     const mesh = src.clone(true);
     mesh.position.x = PARK_OFFSCREEN;
-    // Keep VISIBLE during pre-warm so renderer.compile + the first render
-    // actually compile shaders and upload textures for these meshes.
-    // (Three.js skips invisible objects during compile/render, which would
-    //  otherwise defer that work to first spawn → frame hitch.)
     mesh.visible = true;
     mesh.traverse((c) => { c.frustumCulled = false; });
     scene.add(mesh);
     const relBox = (isBush ? CACHED_BUSH_BOX : CACHED_TREE_BOX).clone();
     game.obstaclePool.push({ mesh, scored: false, relBox });
   }
+  // Pre-warm the taxi too — same trick: clone + add visible, then hide. Its
+  // shaders/textures will be ready when the win sequence reveals it.
+  const taxi = MODELS.taxi.clone(true);
+  fitModel(taxi, 1.7, GROUND_Y + 0.4);
+  taxi.position.x = PARK_OFFSCREEN + 5;
+  taxi.position.z = -1.8;
+  taxi.rotation.y = Math.PI;
+  taxi.visible = true;
+  taxi.traverse((c) => { c.frustumCulled = false; });
+  scene.add(taxi);
+  game.taxiPrebuilt = taxi;
+
   // Compile shaders + force one render pass so textures upload to GPU NOW.
   renderer.compile(scene, camera);
   renderer.render(scene, camera);
-  // Hide them until they're actually spawned into play.
+  // Hide pool + taxi until needed.
   for (const o of game.obstaclePool) o.mesh.visible = false;
+  taxi.visible = false;
 }
 
 function spawnObstacle(): void {
@@ -459,13 +469,12 @@ function triggerLoss(): void {
 }
 
 function spawnTaxi(): void {
-  game.taxi = MODELS.taxi.clone(true);
-  fitModel(game.taxi, 1.7, GROUND_Y + 0.4);
-  // Spawn at SPAWN_X just like an obstacle and scroll toward the character.
+  // Reuse the pre-warmed taxi (already in scene + GPU-ready) — only update
+  // its position and visibility so there's no hitch when the win sequence
+  // begins.
+  game.taxi = game.taxiPrebuilt!;
   game.taxi.position.x = spawnX();
-  game.taxi.position.z = -1.8;
-  game.taxi.rotation.y = Math.PI;
-  scene.add(game.taxi);
+  game.taxi.visible = true;
 }
 
 function triggerPickup(): void {
